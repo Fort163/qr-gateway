@@ -11,6 +11,9 @@ import java.util.List;
 @FeignClient(name = "USER-SERVICE",contextId = "user", path = "/user")
 public interface UserController {
 
+    @GetMapping("/test")
+    ResponseEntity<UserDto> getTest(@PathVariable String name);
+
     @GetMapping("/currentUser")
     ResponseEntity<UserDto> getCurrentUser();
 
