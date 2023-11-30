@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.config;
+package com.quick.recording.gateway.config.json.desirializer;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -9,12 +9,16 @@ import org.springframework.boot.jackson.JsonComponent;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @JsonComponent
-public class LocalDateTimeDeserialize extends JsonDeserializer<LocalDateTime> {
+public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
 
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-        return LocalDateTime.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+        if(Objects.nonNull(jsonParser.getText())) {
+            return LocalDateTime.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        }
+        return null;
     }
 }

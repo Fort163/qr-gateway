@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.config;
+package com.quick.recording.gateway.config.json.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -14,8 +14,8 @@ import java.util.Objects;
 public class LocalDateSerializer extends JsonSerializer<LocalDate> {
     @Override
     public void serialize(LocalDate localDate, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        if(!Objects.isNull(localDate)) {
-            jsonGenerator.writeString(localDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        if(Objects.nonNull(localDate)) {
+            jsonGenerator.writeString(localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
         }
     }
 }
