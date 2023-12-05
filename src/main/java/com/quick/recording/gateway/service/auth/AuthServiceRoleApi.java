@@ -3,6 +3,7 @@ package com.quick.recording.gateway.service.auth;
 import com.quick.recording.gateway.dto.auth.RoleDto;
 import com.quick.recording.gateway.dto.auth.SearchRoleDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public interface AuthServiceRoleApi {
     ResponseEntity<RoleDto> byUuid(@PathVariable UUID uuid);
 
     @GetMapping
-    Page<RoleDto> list(SearchRoleDto searchRoleDto, Pageable pageable);
+    Page<RoleDto> list(@SpringQueryMap SearchRoleDto searchRoleDto, @SpringQueryMap Pageable pageable);
 
     @PostMapping
     ResponseEntity<RoleDto> post(@RequestBody RoleDto role);

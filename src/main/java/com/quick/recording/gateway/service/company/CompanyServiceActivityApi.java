@@ -3,6 +3,7 @@ package com.quick.recording.gateway.service.company;
 import com.quick.recording.gateway.dto.company.ActivityDto;
 import com.quick.recording.gateway.dto.company.SearchActivityDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,10 @@ public interface CompanyServiceActivityApi {
     ResponseEntity<ActivityDto> byUuid(@PathVariable UUID uuid);
 
     @GetMapping
-    Page<ActivityDto> list(SearchActivityDto searchActivityDto, Pageable pageable);
+    Page<ActivityDto> list(@SpringQueryMap SearchActivityDto searchActivityDto, @SpringQueryMap Pageable pageable);
 
     @PostMapping
-    ResponseEntity<ActivityDto> post(ActivityDto activityDto);
+    ResponseEntity<ActivityDto> post(@RequestBody ActivityDto activityDto);
 
     @PutMapping({"/patch"})
     ResponseEntity<ActivityDto> patch(@RequestBody ActivityDto user);

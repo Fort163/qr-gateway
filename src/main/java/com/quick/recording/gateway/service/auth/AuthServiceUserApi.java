@@ -5,6 +5,7 @@ import com.quick.recording.gateway.dto.auth.Role2UserDto;
 import com.quick.recording.gateway.dto.auth.SearchUserDto;
 import com.quick.recording.resource.service.anatation.WithServerAuth;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public interface AuthServiceUserApi {
     ResponseEntity<AuthUserDto> byUuid(@PathVariable UUID uuid);
 
     @GetMapping
-    Page<AuthUserDto> list(SearchUserDto searchUserDto, Pageable pageable);
+    Page<AuthUserDto> list(@SpringQueryMap SearchUserDto searchUserDto, @SpringQueryMap Pageable pageable);
 
     @PutMapping("/patch")
     ResponseEntity<AuthUserDto> patch(@RequestBody AuthUserDto user);
