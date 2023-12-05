@@ -1,7 +1,9 @@
 package com.quick.recording.gateway.service.auth;
 
 import com.quick.recording.gateway.dto.auth.AuthUserDto;
+import com.quick.recording.gateway.dto.auth.Role2UserDto;
 import com.quick.recording.gateway.dto.auth.SearchUserDto;
+import com.quick.recording.resource.service.anatation.WithServerAuth;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +33,9 @@ public interface AuthServiceUserApi {
 
     @DeleteMapping("/{uuid}")
     ResponseEntity<Boolean> delete(@PathVariable UUID uuid);
+
+    @PutMapping("/addRole")
+    @WithServerAuth
+    ResponseEntity<Boolean> addRole(@RequestBody Role2UserDto dto);
 
 }

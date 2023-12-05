@@ -15,17 +15,22 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.nio.ByteBuffer;
 import java.util.*;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -67,7 +72,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<Object> handle(FeignException ex,
+    public ResponseEntity<Object> handleFeignException(FeignException ex,
                                          HttpServletRequest request, HttpServletResponse response) {
         String result = "";
         Optional<ByteBuffer> byteBuffer = ex.responseBody();
