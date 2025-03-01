@@ -14,7 +14,7 @@ import java.util.UUID;
 @FeignClient(
         name = "COMPANY-SERVICE",
         contextId = "activity",
-        path = "/api/activity"
+        path = "/api/v1/activity"
 )
 public interface CompanyServiceActivityApi {
 

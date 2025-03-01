@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@FeignClient(name = "COMPANY-SERVICE",contextId = "company", path = "/company")
+@FeignClient(name = "COMPANY-SERVICE",contextId = "company", path = "/api/v1/company")
 public interface CompanyServiceCompanyApi {
 
     @GetMapping({"/{uuid}"})

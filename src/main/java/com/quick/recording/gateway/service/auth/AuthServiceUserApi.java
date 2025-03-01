@@ -16,7 +16,7 @@ import java.util.UUID;
 @FeignClient(
         name = "AUTH-SERVICE",
         contextId = "user",
-        path = "/api/user"
+        path = "/api/v1/user"
 )
 public interface AuthServiceUserApi {
 
