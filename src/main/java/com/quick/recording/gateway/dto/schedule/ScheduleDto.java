@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.dto.company;
+package com.quick.recording.gateway.dto.schedule;
 
 import com.quick.recording.gateway.enumerated.DayOfWeek;
 import lombok.Data;

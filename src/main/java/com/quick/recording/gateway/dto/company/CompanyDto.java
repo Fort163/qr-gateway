@@ -1,6 +1,6 @@
 package com.quick.recording.gateway.dto.company;
 
-import com.quick.recording.gateway.dto.user.UserDto;
+import com.quick.recording.gateway.dto.schedule.ScheduleDto;
 import com.quick.recording.gateway.dto.yandex.GeocoderDto;
 import lombok.Data;
 
