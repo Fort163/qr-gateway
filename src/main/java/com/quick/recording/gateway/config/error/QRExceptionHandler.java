@@ -2,8 +2,6 @@ package com.quick.recording.gateway.config.error;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.quick.recording.gateway.config.error.exeption.NotFoundException;
-import com.quick.recording.gateway.config.error.exeption.QRInternalServerErrorException;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,15 +13,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -39,20 +32,6 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
-
-    @ExceptionHandler({NotFoundException.class})
-    public ResponseEntity<Object> handleEntityNotFoundEx(NotFoundException ex, WebRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        ApiError build = ApiError.builder().debugMessage(ex.toString()).message(ex.getMessage()).service(serviceName).build();
-        return new ResponseEntity(build, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler({QRInternalServerErrorException.class})
-    public ResponseEntity<Object> handleInternalServerError(QRInternalServerErrorException ex, WebRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        ApiError build = ApiError.builder().debugMessage(ex.toString()).message(ex.getMessage()).service(serviceName).build();
-        return new ResponseEntity(build, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -96,4 +75,12 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
         }
         return new ResponseEntity<Object>(build,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        ApiError build = ApiError.builder().debugMessage(ex.toString()).message(ex.getMessage()).service(serviceName).build();
+        return new ResponseEntity(build, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
