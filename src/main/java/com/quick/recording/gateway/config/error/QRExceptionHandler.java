@@ -52,7 +52,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
                 ex.getParameter().getParameter().toString()
         );
         ApiError build = ApiError.builder().message(messageError).errors(errors).service(serviceName).build();
-        return new ResponseEntity(build, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity(build, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(FeignException.class)
