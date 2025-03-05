@@ -8,9 +8,9 @@ import java.util.UUID;
 @Data
 public class Role2UserDto {
 
-    @NotNull(message = "UUID user is required")
+    @NotNull(message = "validation.auth.uuid.user")
     private UUID user;
-    @NotNull(message = "UUID role is required")
+    @NotNull(message = "validation.auth.uuid.role")
     private UUID role;
 
 }

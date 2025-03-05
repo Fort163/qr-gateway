@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 public class AuthUserDto {
 
-    @NotNull(message = "UUID is required")
+    @NotNull(message = "validation.uuid")
     private UUID uuid;
     private String fullName;
     private String firstName;
@@ -22,15 +22,15 @@ public class AuthUserDto {
     private String userpic;
     @Email
     private String email;
-    @NotNull(message = "Username is required")
+    @NotNull(message = "validation.auth.username")
     private String username;
     private LocalDateTime lastVisit;
-    @NotNull(message = "Gender is required")
+    @NotNull(message = "validation.auth.gender")
     private Gender gender;
     private String phoneNumber;
-    @DateRange(pastYear = 18,message = "BirthDay must be over 18 years old")
+    @DateRange(pastYear = 18,message = "validation.auth.18.year.old")
     private LocalDate birthDay;
-    @NotNull(message = "AuthProvider is required")
+    @NotNull(message = "validation.auth.provider")
     private AuthProvider provider;
 
 }

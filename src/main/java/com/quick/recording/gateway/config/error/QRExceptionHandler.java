@@ -2,10 +2,11 @@ package com.quick.recording.gateway.config.error;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quick.recording.gateway.config.MessageUtil;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -25,23 +26,24 @@ import java.util.*;
 
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
+@RequiredArgsConstructor
 public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Value("${spring.application.name}")
     private String serviceName;
 
-    @Autowired
-    private ObjectMapper jacksonObjectMapper;
+    private final ObjectMapper jacksonObjectMapper;
+    private final MessageUtil messageUtil;
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.add(String.format("Validation error in field %s message - %s", fieldName, errorMessage));
+            String errorMessage = messageUtil.create(error.getDefaultMessage());
+            errors.add(messageUtil.create("error.validation.field", fieldName, errorMessage));
         });
-        String messageError = String.format("Validation error class %s in %s not valid parameter %s",
+        String messageError = messageUtil.create("error.validation.class",
                 ex.getParameter().getExecutable().getDeclaringClass().getName(),
                 ex.getParameter().toString(),
                 ex.getParameter().getParameter().toString()
@@ -66,9 +68,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
                 e.printStackTrace();
             }
         }
-        String messageError = String.format("Error in endpoint %s",
-                request.getServletPath()
-        );
+        String messageError = messageUtil.create("error.in.endpoint", request.getServletPath());
         ApiError build = ApiError.builder().message(messageError).service(serviceName).parentError(apiError).build();
         if(Objects.isNull(apiError)){
             build.setDebugMessage(ex.getMessage());

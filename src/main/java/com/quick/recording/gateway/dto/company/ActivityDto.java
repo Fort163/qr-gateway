@@ -10,11 +10,11 @@ public class ActivityDto {
 
     private UUID uuid;
     @NotNull(
-            message = "Name is required"
+            message = "validation.name"
     )
     private String name;
     @NotNull(
-            message = "Description is required"
+            message = "validation.description"
     )
     private String description;
     private Boolean isActive = true;

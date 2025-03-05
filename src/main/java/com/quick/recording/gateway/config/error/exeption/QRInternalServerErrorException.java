@@ -1,11 +1,12 @@
 package com.quick.recording.gateway.config.error.exeption;
 
+import com.quick.recording.gateway.config.MessageUtil;
 import jakarta.ws.rs.InternalServerErrorException;
 
 public class QRInternalServerErrorException extends InternalServerErrorException {
 
-    public QRInternalServerErrorException(String serverName, String error) {
-        super(String.format("Service with name %s catch error %s", serverName, error));
+    public QRInternalServerErrorException(MessageUtil messageUtil, String serverName, String error) {
+        super(messageUtil.create("exception.internal.server.error", serverName, error));
     }
 
     private QRInternalServerErrorException(String message) {
