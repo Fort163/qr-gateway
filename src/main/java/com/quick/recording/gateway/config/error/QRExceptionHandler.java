@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,7 +37,9 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
     private final MessageUtil messageUtil;
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatusCode status,
+                                                                  WebRequest request) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -44,7 +47,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
             errors.add(messageUtil.create("error.validation.field", fieldName, errorMessage));
         });
         String messageError = messageUtil.create("error.validation.class",
-                ex.getParameter().getExecutable().getDeclaringClass().getName(),
+                ex.getParameter().getExecutable().getDeclaringClass().getSimpleName(),
                 ex.getParameter().toString(),
                 ex.getParameter().getParameter().toString()
         );
@@ -78,9 +81,22 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        ApiError build = ApiError.builder().debugMessage(ex.toString()).message(ex.getMessage()).service(serviceName).build();
+        ApiError build = ApiError.builder()
+                .debugMessage(ex.toString())
+                .message(ex.getMessage())
+                .service(serviceName)
+                .build();
         return new ResponseEntity(build, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        ApiError build = ApiError.builder()
+                .debugMessage(ex.toString())
+                .message(messageUtil.create("error.access.denied"))
+                .service(serviceName)
+                .build();
+        return new ResponseEntity(build, HttpStatus.FORBIDDEN);
     }
 
 }
