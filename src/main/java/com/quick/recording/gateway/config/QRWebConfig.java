@@ -1,5 +1,6 @@
 package com.quick.recording.gateway.config;
 
+import com.quick.recording.gateway.Constant;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -27,7 +28,7 @@ public class QRWebConfig implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {
-        CookieLocaleResolver resolver = new CookieLocaleResolver("i18next");
+        CookieLocaleResolver resolver = new CookieLocaleResolver(Constant.LOCALE_COOKIE_NAME);
         return resolver;
     }
 
