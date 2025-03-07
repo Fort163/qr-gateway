@@ -23,7 +23,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -57,14 +60,14 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Object> handleFeignException(FeignException ex,
-                                         HttpServletRequest request, HttpServletResponse response) {
+                                                       HttpServletRequest request, HttpServletResponse response) {
         String result = "";
         Optional<ByteBuffer> byteBuffer = ex.responseBody();
-        if(byteBuffer.isPresent() && byteBuffer.get().hasArray()){
+        if (byteBuffer.isPresent() && byteBuffer.get().hasArray()) {
             result = new String(byteBuffer.get().array());
         }
         ApiError apiError = null;
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             try {
                 apiError = jacksonObjectMapper.readValue(result, ApiError.class);
             } catch (JsonProcessingException e) {
@@ -73,10 +76,10 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
         }
         String messageError = messageUtil.create("error.in.endpoint", request.getServletPath());
         ApiError build = ApiError.builder().message(messageError).service(serviceName).parentError(apiError).build();
-        if(Objects.isNull(apiError)){
+        if (Objects.isNull(apiError)) {
             build.setDebugMessage(ex.getMessage());
         }
-        return new ResponseEntity<Object>(build,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Object>(build, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({RuntimeException.class})

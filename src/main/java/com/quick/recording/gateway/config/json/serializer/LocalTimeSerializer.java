@@ -15,7 +15,7 @@ import java.util.Objects;
 public class LocalTimeSerializer extends JsonSerializer<LocalTime> {
     @Override
     public void serialize(LocalTime localTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        if(Objects.nonNull(localTime)) {
+        if (Objects.nonNull(localTime)) {
             jsonGenerator.writeString(localTime.format(DateTimeFormatter.ofPattern("HH:mm")));
         }
     }

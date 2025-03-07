@@ -15,7 +15,7 @@ import java.util.Objects;
 public class LocalTimeDeserializer extends JsonDeserializer<LocalTime> {
     @Override
     public LocalTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-        if(Objects.nonNull(jsonParser.getText())) {
+        if (Objects.nonNull(jsonParser.getText())) {
             return LocalTime.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("HH:mm"));
         }
         return null;

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.12</version>
+		<version>3.4.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.quick.recording</groupId>
@@ -16,7 +16,7 @@
 	<description>gateway</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2022.0.0</spring-cloud.version>
+		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<maven.compiler.version>3.13.0</maven.compiler.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
@@ -31,21 +31,12 @@
 			<artifactId>spring-cloud-starter-config</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.24</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

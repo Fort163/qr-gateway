@@ -10,11 +10,11 @@ import java.util.UUID;
 @Data
 public class RoleDto {
 
-    @NotNull(message = "validation.uuid",groups = {PutRole.class})
+    @NotNull(message = "validation.uuid", groups = {PutRole.class})
     private UUID uuid;
-    @NotNull(message = "validation.name",groups = {PutRole.class,PostRole.class})
+    @NotNull(message = "validation.name", groups = {PutRole.class, PostRole.class})
     private String name;
-    @NotEmpty(message = "validation.auth.role.not.empty",groups = {PutRole.class,PostRole.class})
+    @NotEmpty(message = "validation.auth.role.not.empty", groups = {PutRole.class, PostRole.class})
     private List<PermissionDto> permissions;
     private Boolean isActive;
 

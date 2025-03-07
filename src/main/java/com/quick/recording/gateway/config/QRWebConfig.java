@@ -33,10 +33,10 @@ public class QRWebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ReloadableResourceBundleMessageSource messageSource(){
+    public ReloadableResourceBundleMessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setUseCodeAsDefaultMessage(true);
-        messageSource.addBasenames("classpath:locale/messages","classpath:locale/gateway_messages");
+        messageSource.addBasenames("classpath:locale/messages", "classpath:locale/gateway_messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }

@@ -28,7 +28,7 @@ public class AuthUserDto {
     @NotNull(message = "validation.auth.gender")
     private Gender gender;
     private String phoneNumber;
-    @DateRange(pastYear = 18,message = "validation.auth.18.year.old")
+    @DateRange(pastYear = 18, message = "validation.auth.18.year.old")
     private LocalDate birthDay;
     @NotNull(message = "validation.auth.provider")
     private AuthProvider provider;

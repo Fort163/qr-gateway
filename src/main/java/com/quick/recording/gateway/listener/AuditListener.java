@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class AuditListener {
 
     @PrePersist
-    private void prePersist(AuditEntity entity){
+    private void prePersist(AuditEntity entity) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         entity.setCreatedWhen(LocalDateTime.now());
         entity.setUpdatedWhen(LocalDateTime.now());
@@ -22,7 +22,7 @@ public class AuditListener {
     }
 
     @PreUpdate
-    private void preUpdate(AuditEntity entity){
+    private void preUpdate(AuditEntity entity) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         entity.setUpdatedWhen(LocalDateTime.now());
         entity.setUpdatedBy(authentication.getName());

@@ -14,7 +14,7 @@ import java.util.Objects;
 public class LocalDateSerializer extends JsonSerializer<LocalDate> {
     @Override
     public void serialize(LocalDate localDate, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        if(Objects.nonNull(localDate)) {
+        if (Objects.nonNull(localDate)) {
             jsonGenerator.writeString(localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
         }
     }

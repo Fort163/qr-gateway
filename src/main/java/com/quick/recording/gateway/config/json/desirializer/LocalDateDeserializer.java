@@ -15,7 +15,7 @@ import java.util.Objects;
 public class LocalDateDeserializer extends JsonDeserializer<LocalDate> {
     @Override
     public LocalDate deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-        if(Objects.nonNull(jsonParser.getText())) {
+        if (Objects.nonNull(jsonParser.getText())) {
             return LocalDate.parse(jsonParser.getText(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         }
         return null;

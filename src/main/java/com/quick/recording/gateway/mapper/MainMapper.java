@@ -7,7 +7,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-public interface MainMapper <Entity, Dto> {
+public interface MainMapper<Entity, Dto> {
 
     Entity toEntity(Dto dto);
 
