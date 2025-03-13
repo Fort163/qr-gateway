@@ -9,7 +9,7 @@ public class QRInternalServerErrorException extends InternalServerErrorException
         super(messageUtil.create("exception.internal.server.error", serverName, error));
     }
 
-    private QRInternalServerErrorException(String message) {
+    public QRInternalServerErrorException(String message) {
         super(message);
     }
 
