@@ -14,4 +14,10 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     protected UUID uuid;
 
+    public BaseEntity() {
+    }
+
+    public BaseEntity(UUID uuid) {
+        this.uuid = uuid;
+    }
 }
