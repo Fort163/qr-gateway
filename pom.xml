@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
-		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<mapstruct.version>1.6.3</mapstruct.version>
 		<maven.compiler.version>3.13.0</maven.compiler.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
 		<qr.resource.version>0.0.1-SNAPSHOT</qr.resource.version>
