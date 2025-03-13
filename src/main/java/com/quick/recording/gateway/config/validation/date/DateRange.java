@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.config.validation;
+package com.quick.recording.gateway.config.validation.date;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
