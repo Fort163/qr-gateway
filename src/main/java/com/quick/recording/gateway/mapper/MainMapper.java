@@ -2,6 +2,7 @@ package com.quick.recording.gateway.mapper;
 
 
 import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
