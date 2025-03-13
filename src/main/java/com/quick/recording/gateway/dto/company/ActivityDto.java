@@ -1,22 +1,19 @@
 package com.quick.recording.gateway.dto.company;
 
+import com.quick.recording.gateway.dto.SmartDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
-public class ActivityDto {
+public class ActivityDto extends SmartDto {
 
-    private UUID uuid;
     @NotNull(
-            message = "validation.name"
+            message = "{validation.name}"
     )
     private String name;
     @NotNull(
-            message = "validation.description"
+            message = "{validation.description}"
     )
     private String description;
-    private Boolean isActive = true;
 
 }

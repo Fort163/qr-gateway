@@ -1,14 +1,15 @@
 package com.quick.recording.gateway.dto.schedule;
 
+import com.quick.recording.gateway.dto.AuditDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.enumerated.DayOfWeek;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-public class ScheduleDto {
+public class ScheduleDto extends SmartDto {
 
-    private UUID uuid;
     private String clockFrom;
     private String clockTo;
     private Boolean work;

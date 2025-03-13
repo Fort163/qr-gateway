@@ -1,14 +1,13 @@
 package com.quick.recording.gateway.dto.yandex;
 
+import com.quick.recording.gateway.dto.SmartDto;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
-public class GeocoderDto {
+public class GeocoderDto extends SmartDto {
 
-    private UUID uuid;
     private Double longitude;
     private Double latitude;
     private String name;
