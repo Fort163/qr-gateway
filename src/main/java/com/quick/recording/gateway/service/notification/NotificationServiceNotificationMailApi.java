@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
         name = "GATEWAY-SERVICE",
-        contextId = "activity",
+        contextId = "notificationMail",
         path = "/notification/api/v1/notification/mail"
 )
 public interface NotificationServiceNotificationMailApi extends MainController<NotificationMailDto> {

@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @FeignClient(
         name = "GATEWAY-SERVICE",
-        contextId = "activity",
+        contextId = "mailSender",
         path = "/notification/api/v1/mail/sender"
 )
 public interface NotificationServiceMailSenderApi {
