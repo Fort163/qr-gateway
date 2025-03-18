@@ -1,5 +1,6 @@
-package com.quick.recording.gateway.config;
+package com.quick.recording.gateway.interceptor;
 
+import com.quick.recording.gateway.config.MessageUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;

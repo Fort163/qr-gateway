@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.config;
+package com.quick.recording.gateway.interceptor;
 
 import com.quick.recording.gateway.Constant;
 import feign.RequestInterceptor;
