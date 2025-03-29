@@ -4,10 +4,12 @@ import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.schedule.ScheduleDto;
 import com.quick.recording.gateway.dto.yandex.GeocoderDto;
 import lombok.Data;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
 
 @Data
+@RedisHash("Company")
 public class CompanyDto extends SmartDto {
 
     private String name;

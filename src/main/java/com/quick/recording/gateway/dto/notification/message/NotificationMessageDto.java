@@ -12,11 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RedisHash("NotificationMessage")
 public class NotificationMessageDto extends SmartDto {
 
     @Null(message = "{validation.field.cannot.be.changed.notification.message}", groups = {Patch.class})

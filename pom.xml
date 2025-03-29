@@ -21,6 +21,8 @@
 		<maven.compiler.version>3.13.0</maven.compiler.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
 		<qr.resource.version>0.0.1-SNAPSHOT</qr.resource.version>
+		<spring.data.redis.version>3.4.4</spring.data.redis.version>
+		<jedis.version>5.2.0</jedis.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -69,6 +71,25 @@
 			<artifactId>resilience4j-timelimiter</artifactId>
 			<version>${resilience4j.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>${spring.data.redis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-stream-kafka</artifactId>
+		</dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

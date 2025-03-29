@@ -23,13 +23,13 @@ public interface MainController<Dto> {
     Page<Dto> search(@SpringQueryMap Dto search, Pageable pageable);
 
     @PostMapping
-    ResponseEntity<Dto> post(@RequestBody @Validated({Post.class}) Dto Dto);
+    ResponseEntity<Dto> post(@RequestBody @Validated({Post.class}) Dto dto);
 
     @PutMapping({"/patch"})
-    ResponseEntity<Dto> patch(@RequestBody @Validated({Patch.class}) Dto user);
+    ResponseEntity<Dto> patch(@RequestBody @Validated({Patch.class}) Dto dto);
 
     @PutMapping
-    ResponseEntity<Dto> put(@RequestBody @Validated({Put.class}) Dto user);
+    ResponseEntity<Dto> put(@RequestBody @Validated({Put.class}) Dto dto);
 
     @DeleteMapping({"/{uuid}"})
     ResponseEntity<Boolean> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,

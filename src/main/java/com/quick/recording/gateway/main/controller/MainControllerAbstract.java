@@ -7,7 +7,7 @@ import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
 import com.quick.recording.gateway.entity.SmartEntity;
 import com.quick.recording.gateway.enumerated.Delete;
-import com.quick.recording.gateway.main.service.MainService;
+import com.quick.recording.gateway.main.service.local.MainService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;

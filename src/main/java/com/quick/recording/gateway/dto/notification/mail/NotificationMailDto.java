@@ -2,6 +2,7 @@ package com.quick.recording.gateway.dto.notification.mail;
 
 import com.quick.recording.gateway.dto.SmartDto;
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RedisHash("NotificationMail")
 public class NotificationMailDto extends SmartDto {
 
     private UUID messageID;

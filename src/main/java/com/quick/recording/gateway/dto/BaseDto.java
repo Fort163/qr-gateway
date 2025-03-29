@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class BaseDto {
     }
 
     @NotNull(message = "{validation.uuid}", groups = {Put.class, Patch.class})
+    @Id
     private UUID uuid;
 
 }

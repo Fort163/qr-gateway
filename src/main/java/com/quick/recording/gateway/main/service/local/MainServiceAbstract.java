@@ -1,4 +1,4 @@
-package com.quick.recording.gateway.main.service;
+package com.quick.recording.gateway.main.service.local;
 
 import com.quick.recording.gateway.config.MessageUtil;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
