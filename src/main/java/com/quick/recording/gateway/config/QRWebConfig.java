@@ -1,12 +1,14 @@
 package com.quick.recording.gateway.config;
 
 import com.quick.recording.gateway.Constant;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -39,6 +41,12 @@ public class QRWebConfig implements WebMvcConfigurer {
         messageSource.addBasenames("classpath:locale/messages", "classpath:locale/gateway_messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
+    }
+
+    @LoadBalanced
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
     }
 
 }
