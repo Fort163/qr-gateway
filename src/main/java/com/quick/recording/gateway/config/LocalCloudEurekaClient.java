@@ -20,7 +20,7 @@ import java.util.Locale;
 
 @Component
 @Primary
-@Profile("local")
+@Profile({"local","test"})
 public class LocalCloudEurekaClient extends CloudEurekaClient {
 
     @Value("${spring.application.name}")
