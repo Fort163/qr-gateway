@@ -85,10 +85,10 @@ public class CacheStreamConfigurer implements BeanDefinitionRegistryPostProcesso
                         (Class<? extends MainController<?>>)
                                 Class.forName(beanDefinition.getBeanClassName());
                 Constructor<?> constructor = Arrays.stream(clazz.getConstructors())
-                        .filter(item -> item.getParameterCount() == 2)
                         .findFirst()
                         .orElseThrow();
-                Object object = constructor.newInstance(null, null);
+                Object[] param = new Object[constructor.getParameterCount()];
+                Object object = constructor.newInstance(param);
                 Collection<String> cacheNames = (Collection<String>) clazz.getMethod("listAllCacheName").invoke(object);
                 this.cacheNames.addAll(cacheNames);
             } catch (Exception exception) {
