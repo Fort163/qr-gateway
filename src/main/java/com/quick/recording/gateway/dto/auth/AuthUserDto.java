@@ -2,6 +2,7 @@ package com.quick.recording.gateway.dto.auth;
 
 import com.quick.recording.gateway.config.validation.date.DateRange;
 import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.resource.service.enumeration.AuthProvider;
 import com.quick.recording.resource.service.enumeration.Gender;
 import jakarta.validation.constraints.Email;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Data
 @RedisHash("User")
-public class AuthUserDto extends BaseDto {
+public class AuthUserDto extends SmartDto {
 
     private String fullName;
     private String firstName;
