@@ -1,7 +1,7 @@
 package com.quick.recording.gateway.main.service.remote;
 
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
-import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.enumerated.Delete;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
-public abstract class MainRemoteServiceAbstract<Dto extends BaseDto, Service extends MainRemoteService<Dto>>
+public abstract class MainRemoteServiceAbstract<Dto extends SmartDto, Service extends MainRemoteService<Dto>>
         implements MainRemoteService<Dto> {
 
     protected Service service;

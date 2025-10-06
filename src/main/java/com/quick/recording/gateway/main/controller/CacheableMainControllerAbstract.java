@@ -3,6 +3,7 @@ package com.quick.recording.gateway.main.controller;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.config.function.CacheConsumer;
 import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.broker.MessageChangeDataDto;
 import com.quick.recording.gateway.entity.SmartEntity;
 import com.quick.recording.gateway.main.service.local.MainService;
@@ -22,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Log4j2
-public abstract class CacheableMainControllerAbstract<Dto extends BaseDto,
+public abstract class CacheableMainControllerAbstract<Dto extends SmartDto,
         Entity extends SmartEntity,
         Repository extends JpaRepository<Dto, UUID>,
         Service extends MainService<Entity, Dto>>

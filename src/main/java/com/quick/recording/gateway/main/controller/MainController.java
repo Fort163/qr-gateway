@@ -1,6 +1,7 @@
 package com.quick.recording.gateway.main.controller;
 
 import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.util.Patch;
 import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
@@ -21,7 +22,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public interface MainController<Dto extends BaseDto> {
+public interface MainController<Dto extends SmartDto> {
 
     String SELF = "self";
 

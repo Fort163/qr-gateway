@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.nimbusds.jose.util.ArrayUtils;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.util.Patch;
 import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
@@ -23,7 +24,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class MainControllerAbstract<Dto extends BaseDto, Entity extends SmartEntity,
+public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extends SmartEntity,
         Service extends MainService<Entity, Dto>>
         implements MainController<Dto> {
 

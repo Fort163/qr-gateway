@@ -3,6 +3,7 @@ package com.quick.recording.gateway.main.service.remote;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.config.function.CacheConsumer;
 import com.quick.recording.gateway.dto.BaseDto;
+import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.broker.MessageChangeDataDto;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +22,7 @@ import java.util.*;
 
 @Log4j2
 public abstract class CacheableMainRemoteServiceAbstract<
-        Dto extends BaseDto,
+        Dto extends SmartDto,
         Repository extends JpaRepository<Dto, UUID>,
         Service extends MainRemoteService<Dto> >
         extends MainRemoteServiceAbstract<Dto, Service> {
