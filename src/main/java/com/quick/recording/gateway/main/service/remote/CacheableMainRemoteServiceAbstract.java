@@ -5,21 +5,28 @@ import com.quick.recording.gateway.config.function.CacheConsumer;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.broker.MessageChangeDataDto;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
-@Service
-public abstract class CacheableMainRemoteServiceAbstract<Dto extends BaseDto> extends MainRemoteServiceAbstract<Dto> {
+@Log4j2
+public abstract class CacheableMainRemoteServiceAbstract<
+        Dto extends BaseDto,
+        Repository extends JpaRepository<Dto, UUID>,
+        Service extends MainRemoteService<Dto> >
+        extends MainRemoteServiceAbstract<Dto, Service> {
 
-    private CrudRepository<Dto, UUID> repository;
-    private CacheConsumer consumer;
+    private final Repository repository;
     @Autowired
     private ApplicationContext context;
 
@@ -27,40 +34,41 @@ public abstract class CacheableMainRemoteServiceAbstract<Dto extends BaseDto> ex
         throw new BuildClassException("Call empty constructor in class CacheableMainRemoteServiceAbstract");
     }
 
-    public CacheableMainRemoteServiceAbstract(CrudRepository<Dto, UUID> repository,
-                                              MainRemoteService<Dto> service) {
+    public CacheableMainRemoteServiceAbstract(Repository repository,
+                                              Service service) {
         super(service);
         this.repository = repository;
     }
 
     @PostConstruct
     private void postConstruct() {
-        try {
-            CacheConsumer bean = (CacheConsumer) context.getBean(cacheName());
-            this.setConsumer(bean);
-        }
-        catch (BeansException | NullPointerException exception){
-            throw new BuildClassException(String.format("Bean with name << %s >> not found.\n" +
-                    "Check if you have enabled the option qr-cache.enabled.\n" +
-                    "Or change the abstract class CacheableMainRemoteServiceAbstract to MainRemoteServiceAbstract.", cacheName()));
+        for (String beanName : Objects.requireNonNull(listAllCacheName())) {
+            try {
+                CacheConsumer bean = (CacheConsumer) getContext().getBean(beanName);
+                this.addConsumer(bean);
+            } catch (BeansException | NullPointerException exception) {
+                throw new BuildClassException(String.format("Bean with name << %s >> not found.\n" +
+                                "Check if you have enabled the option qr-cache.enabled.\n" +
+                                "Or change the abstract class CacheableMainRemoteServiceAbstract to MainRemoteServiceAbstract.",
+                        beanName));
+            }
         }
     }
 
     @Override
     public ResponseEntity<Dto> byUuid(UUID uuid) {
-        Optional<Dto> byId = this.repository.findById(uuid);
+        Optional<Dto> byId = getRepository().findById(uuid);
         if (byId.isPresent()) {
             return ResponseEntity.ok(byId.get());
         } else {
             ResponseEntity<Dto> dtoResponseEntity = super.byUuid(uuid);
-            repository.save(dtoResponseEntity.getBody());
+            getRepository().save(dtoResponseEntity.getBody());
             return dtoResponseEntity;
         }
     }
 
-    public void setConsumer(CacheConsumer consumer) {
-        this.consumer = consumer;
-        this.consumer.setFunction(this::consumeMessage);
+    private void addConsumer(CacheConsumer consumer) {
+        consumer.addFunction(this::consumeMessage);
     }
 
     private void consumeMessage(MessageChangeDataDto dto) {
@@ -85,15 +93,70 @@ public abstract class CacheableMainRemoteServiceAbstract<Dto extends BaseDto> ex
     }
 
     protected void doUpdatedMessage(MessageChangeDataDto dto) {
-        if (this.repository.existsById(dto.getEntityUUID())) {
-            this.repository.deleteById(dto.getEntityUUID());
-        }
+        defaultDoMessage(dto);
     }
 
     protected void doDeletedMessage(MessageChangeDataDto dto) {
-        if (this.repository.existsById(dto.getEntityUUID())) {
-            this.repository.deleteById(dto.getEntityUUID());
+        defaultDoMessage(dto);
+    }
+
+    private void defaultDoMessage(MessageChangeDataDto dto) {
+        if (dto.getClazz().equals(getType())) {
+            if (getRepository().existsById(dto.getEntityUUID())) {
+                getRepository().deleteById(dto.getEntityUUID());
+            }
+        } else {
+            List<Dto> searchDto = createSearchDto(dto);
+            for (Dto search : searchDto) {
+                List<Dto> all = getRepository().findAll(createSearch(search));
+                getRepository().deleteAll(all);
+            }
         }
+    }
+
+    private Example<Dto> createSearch(Dto dto) {
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matchingAll()
+                .withIgnoreNullValues()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+        return Example.of(dto, exampleMatcher);
+    }
+
+    private List<Dto> createSearchDto(MessageChangeDataDto message) {
+        List<Dto> result = new ArrayList<>();
+        try {
+            List<Map.Entry<String, Class<? extends BaseDto>>> entries = mapClassToFieldName().entrySet().stream()
+                    .filter(entry -> entry.getValue().getName().equals(message.getClazz().getName()))
+                    .toList();
+            for (Map.Entry<String, Class<? extends BaseDto>> entry : entries) {
+                Constructor<? extends BaseDto> constructorDto = entry.getValue().getDeclaredConstructor();
+                BaseDto baseDto = constructorDto.newInstance();
+                baseDto.setUuid(message.getEntityUUID());
+                Constructor<Dto> constructor = getType().getDeclaredConstructor();
+                Field field = getType().getDeclaredField(entry.getKey());
+                field.setAccessible(true);
+                Dto dto = constructor.newInstance();
+                if (Collection.class.isAssignableFrom(field.getType())) {
+                    field.set(dto, List.of(baseDto));
+                } else {
+                    field.set(dto, baseDto);
+                }
+                result.add(dto);
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                IllegalAccessException | NoSuchFieldException e) {
+            log.error("Failed to process message : " + message);
+        }
+        return result;
+    }
+
+    public Repository getRepository() {
+        return repository;
+    }
+
+    public ApplicationContext getContext() {
+        return context;
     }
 
 }
