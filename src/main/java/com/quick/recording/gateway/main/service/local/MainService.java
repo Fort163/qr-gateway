@@ -31,6 +31,8 @@ public interface MainService<Entity extends SmartEntity, Dto extends SmartDto> {
 
     Entity save(Entity entity);
 
+    Entity byUuidEntity(UUID uuid);
+
     List<Entity> saveAll(Collection<Entity> list);
 
     List<Entity> findAll();

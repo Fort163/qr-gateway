@@ -155,6 +155,14 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
 
     @Override
     @CircuitBreaker(name = "database")
+    public Entity byUuidEntity(UUID uuid) {
+        return repository.findById(uuid).orElseThrow(
+                () -> new NotFoundException(messageUtil, entityClass, uuid)
+        );
+    }
+
+    @Override
+    @CircuitBreaker(name = "database")
     public List<Entity> findAll() {
         return repository.findAll();
     }
