@@ -7,11 +7,13 @@ import com.quick.recording.resource.service.enumeration.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
+@RedisHash("User")
 public class AuthUserDto extends BaseDto {
 
     private String fullName;

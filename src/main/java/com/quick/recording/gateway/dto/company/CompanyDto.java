@@ -15,6 +15,7 @@ public class CompanyDto extends SmartDto {
     private String name;
     private GeocoderDto geoPosition;
     private List<ScheduleDto> schedules;
-    private List<ActivityDto> activity;
+    private List<ActivityDto> activities;
+    private List<ServiceDto> services;
 
 }
