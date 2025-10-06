@@ -9,45 +9,56 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
-public abstract class MainRemoteServiceAbstract<Dto extends BaseDto> implements MainRemoteService<Dto>{
+public abstract class MainRemoteServiceAbstract<Dto extends BaseDto, Service extends MainRemoteService<Dto>>
+        implements MainRemoteService<Dto> {
 
-    protected MainRemoteService<Dto> service;
+    protected Service service;
 
     public MainRemoteServiceAbstract() {
         throw new BuildClassException("Call empty constructor in class MainRemoteServiceAbstract");
     }
 
-    public MainRemoteServiceAbstract(MainRemoteService<Dto> service) {
+    public MainRemoteServiceAbstract(Service service) {
         this.service = service;
     }
 
     @Override
     public ResponseEntity<Dto> byUuid(UUID uuid) {
-        return service.byUuid(uuid);
+        return getService().byUuid(uuid);
     }
 
     @Override
     public Page<Dto> search(Dto dto, Pageable pageable) {
-        return service.search(dto,pageable);
+        return getService().search(dto, pageable);
     }
 
     @Override
     public ResponseEntity<Dto> post(Dto dto) {
-        return service.post(dto);
+        return getService().post(dto);
     }
 
     @Override
     public ResponseEntity<Dto> patch(Dto dto) {
-        return service.patch(dto);
+        return getService().patch(dto);
     }
 
     @Override
     public ResponseEntity<Dto> put(Dto dto) {
-        return service.put(dto);
+        return getService().put(dto);
     }
 
     @Override
     public ResponseEntity<Boolean> delete(UUID uuid, Delete delete) {
-        return service.delete(uuid, delete);
+        return getService().delete(uuid, delete);
     }
+
+    @Override
+    public ResponseEntity<Boolean> restore(UUID uuid) {
+        return getService().restore(uuid);
+    }
+
+    public Service getService() {
+        return service;
+    }
+
 }
