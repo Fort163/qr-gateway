@@ -9,10 +9,11 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-public interface MainService <Entity extends SmartEntity, Dto extends BaseDto>  {
+public interface MainService<Entity extends SmartEntity, Dto extends BaseDto> {
 
     Dto byUuid(UUID uuid);
 
@@ -26,14 +27,20 @@ public interface MainService <Entity extends SmartEntity, Dto extends BaseDto>  
 
     Boolean delete(UUID uuid, Delete delete);
 
+    Boolean restore(UUID uuid);
+
     Entity save(Entity entity);
+
+    List<Entity> saveAll(Collection<Entity> list);
+
+    List<Entity> findAll();
 
     Class<Dto> getType();
 
     @Nullable
-    default String cacheName(){
+    default String cacheName() {
         boolean supportCache = getType().isAnnotationPresent(RedisHash.class);
-        if(supportCache){
+        if (supportCache) {
             return getType().getAnnotation(RedisHash.class).value().toLowerCase(Locale.ROOT);
         }
         return null;
