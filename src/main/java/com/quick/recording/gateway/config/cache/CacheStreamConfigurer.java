@@ -85,6 +85,7 @@ public class CacheStreamConfigurer implements BeanDefinitionRegistryPostProcesso
                         (Class<? extends MainController<?>>)
                                 Class.forName(beanDefinition.getBeanClassName());
                 Constructor<?> constructor = Arrays.stream(clazz.getConstructors())
+                        .filter(item -> item.getParameterCount() >= 2)
                         .findFirst()
                         .orElseThrow();
                 Object[] param = new Object[constructor.getParameterCount()];
