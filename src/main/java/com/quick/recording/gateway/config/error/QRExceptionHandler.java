@@ -7,30 +7,35 @@ import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -40,6 +45,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
     @Value("${spring.application.name}")
     private String serviceName;
 
+    private final ApplicationContext context;
     private final ObjectMapper jacksonObjectMapper;
     private final MessageUtil messageUtil;
 
@@ -74,7 +80,7 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
                                 ex.getMethodParameter().getParameter().getName(),
                                 ex.getMethodParameter().getParameter().getType().getName(),
                                 ex.getMethodParameter().getExecutable().toString()
-                                )
+                        )
                 )
                 .service(serviceName)
                 .build();
@@ -154,12 +160,58 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        ApiError build = ApiError.builder()
-                .debugMessage(ex.toString())
-                .message(messageUtil.create("error.access.denied"))
-                .service(serviceName)
-                .build();
-        return new ResponseEntity(build, HttpStatus.FORBIDDEN);
+        try {
+            String methodAuthority = null;
+            String authority = null;
+            String spellThis = "#root.this.";
+            String userName = request.getUserPrincipal().getName();
+            String path = ((ServletWebRequest) request).getRequest().getServletPath();
+            if (ex instanceof AuthorizationDeniedException) {
+                AuthorizationResult result = ((AuthorizationDeniedException) ex).getAuthorizationResult();
+                if (result instanceof ExpressionAuthorizationDecision) {
+                    String expression = ((ExpressionAuthorizationDecision) result).getExpression().getExpressionString();
+                    if (expression.contains(spellThis)) {
+                        methodAuthority = expression.substring(expression.lastIndexOf(spellThis) + spellThis.length(),
+                                expression.lastIndexOf("("));
+                    } else {
+                        if (expression.contains("('")) {
+                            authority = expression.substring(expression.indexOf("'"), expression.lastIndexOf("'"));
+                        }
+                    }
+                }
+            }
+            if (Objects.isNull(authority) && Objects.nonNull(methodAuthority)) {
+                HandlerMethod method = (HandlerMethod) request.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE,
+                        WebRequest.SCOPE_REQUEST);
+                Method searchAuthority = method.getBeanType().getMethod(methodAuthority);
+                if (searchAuthority.getReturnType().isArray()) {
+                    Object bean = context.getBean(method.getBean().toString());
+                    authority = Strings.join(Arrays.asList((Object[]) searchAuthority.invoke(bean)), ',');
+                }
+            }
+            ApiError build;
+            if (Objects.nonNull(authority) && Objects.nonNull(userName) && Objects.nonNull(path)) {
+                build = ApiError.builder()
+                        .debugMessage(ex.toString())
+                        .message(messageUtil.create("error.access.denied.with.info", userName, authority, path))
+                        .service(serviceName)
+                        .build();
+            } else {
+                build = ApiError.builder()
+                        .debugMessage(ex.toString())
+                        .message(messageUtil.create("error.access.denied"))
+                        .service(serviceName)
+                        .build();
+            }
+            return new ResponseEntity(build, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            ApiError build = ApiError.builder()
+                    .debugMessage(ex.toString())
+                    .message(messageUtil.create("error.access.denied"))
+                    .service(serviceName)
+                    .build();
+            return new ResponseEntity(build, HttpStatus.FORBIDDEN);
+        }
     }
 
 }
