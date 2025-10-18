@@ -18,6 +18,12 @@ public class ReflectUtil {
                 .collect(Collectors.toList());
     }
 
+    public static List<Field> classTypeFieldFromClass(Class<?> aClass, Class<?> type){
+        return Arrays.stream(aClass.getDeclaredFields())
+                .filter(field -> type.isAssignableFrom(field.getType()))
+                .collect(Collectors.toList());
+    }
+
     public static List<Field> arrayFieldFromClass(Class<?> aClass){
         return Arrays.stream(aClass.getDeclaredFields())
                         .filter(field -> Collection.class.isAssignableFrom(field.getType()))
