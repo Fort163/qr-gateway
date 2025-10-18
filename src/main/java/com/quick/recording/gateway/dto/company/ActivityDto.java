@@ -1,6 +1,8 @@
 package com.quick.recording.gateway.dto.company;
 
 import com.quick.recording.gateway.dto.SmartDto;
+import com.quick.recording.gateway.dto.util.Post;
+import com.quick.recording.gateway.dto.util.Put;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.redis.core.RedisHash;
@@ -10,11 +12,13 @@ import org.springframework.data.redis.core.RedisHash;
 public class ActivityDto extends SmartDto {
 
     @NotNull(
-            message = "{validation.name}"
+            message = "{validation.name}",
+            groups = {Put.class, Post.class}
     )
     private String name;
     @NotNull(
-            message = "{validation.description}"
+            message = "{validation.description}",
+            groups = {Put.class, Post.class}
     )
     private String description;
 
