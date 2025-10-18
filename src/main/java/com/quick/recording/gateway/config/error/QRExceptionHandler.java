@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -80,6 +83,34 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
                                 ex.getMethodParameter().getParameter().getName(),
                                 ex.getMethodParameter().getParameter().getType().getName(),
                                 ex.getMethodParameter().getExecutable().toString()
+                        )
+                )
+                .service(serviceName)
+                .build();
+        return new ResponseEntity(build, HttpStatus.BAD_REQUEST);
+    }
+
+    @Nullable
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
+                                                        HttpHeaders headers,
+                                                        HttpStatusCode status,
+                                                        WebRequest request) {
+        String methodName = "";
+        if(ex instanceof MethodArgumentTypeMismatchException){
+            methodName = ((MethodArgumentTypeMismatchException) ex).getParameter().getMethod().getName();
+        }
+        else {
+            if(request instanceof ServletWebRequest) {
+                methodName = ((ServletWebRequest) request).getRequest().getServletPath();
+            }
+        }
+        ApiError build = ApiError.builder()
+                .debugMessage(ex.getMessage())
+                .message(messageUtil.create("exception.mismatch.parameter.request",
+                                ex.getPropertyName(),
+                                ex.getRequiredType().toString(),
+                                ex.getValue().toString(),
+                                methodName
                         )
                 )
                 .service(serviceName)
