@@ -28,8 +28,8 @@ public abstract class MainRemoteServiceAbstract<Dto extends SmartDto, Service ex
     }
 
     @Override
-    public Page<Dto> search(Dto dto, Pageable pageable) {
-        return getService().search(dto, pageable);
+    public Page<Dto> list(Dto dto, Pageable pageable) {
+        return getService().list(dto, pageable);
     }
 
     @Override
@@ -48,12 +48,12 @@ public abstract class MainRemoteServiceAbstract<Dto extends SmartDto, Service ex
     }
 
     @Override
-    public ResponseEntity<Boolean> delete(UUID uuid, Delete delete) {
+    public ResponseEntity<Dto> delete(UUID uuid, Delete delete) {
         return getService().delete(uuid, delete);
     }
 
     @Override
-    public ResponseEntity<Boolean> restore(UUID uuid) {
+    public ResponseEntity<Dto> restore(UUID uuid) {
         return getService().restore(uuid);
     }
 

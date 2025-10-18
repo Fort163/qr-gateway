@@ -17,7 +17,7 @@ public interface MainService<Entity extends SmartEntity, Dto extends SmartDto> {
 
     Dto byUuid(UUID uuid);
 
-    Page<Dto> search(Dto dto, Pageable pageable);
+    Page<Dto> list(Dto dto, Pageable pageable);
 
     Dto post(Dto dto);
 
@@ -25,9 +25,9 @@ public interface MainService<Entity extends SmartEntity, Dto extends SmartDto> {
 
     Dto put(Dto dto);
 
-    Boolean delete(UUID uuid, Delete delete);
+    Dto delete(UUID uuid, Delete delete);
 
-    Boolean restore(UUID uuid);
+    Dto restore(UUID uuid);
 
     Entity save(Entity entity);
 

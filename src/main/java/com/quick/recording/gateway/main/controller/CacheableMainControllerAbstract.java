@@ -6,6 +6,7 @@ import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.broker.MessageChangeDataDto;
 import com.quick.recording.gateway.entity.SmartEntity;
+import com.quick.recording.gateway.enumerated.Delete;
 import com.quick.recording.gateway.main.service.local.MainService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
@@ -69,6 +70,15 @@ public abstract class CacheableMainControllerAbstract<Dto extends SmartDto,
             getRepository().save(dtoResponseEntity.getBody());
             return dtoResponseEntity;
         }
+    }
+
+    @Override
+    public ResponseEntity<Dto> delete(UUID uuid, Delete delete) {
+        ResponseEntity<Dto> deleteDto = super.delete(uuid, delete);
+        if (getRepository().existsById(deleteDto.getBody().getUuid())) {
+            getRepository().deleteById(deleteDto.getBody().getUuid());
+        }
+        return deleteDto;
     }
 
     private void addConsumer(CacheConsumer consumer) {

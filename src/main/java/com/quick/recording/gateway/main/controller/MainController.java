@@ -30,7 +30,7 @@ public interface MainController<Dto extends SmartDto> {
     ResponseEntity<Dto> byUuid(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid);
 
     @GetMapping
-    Page<Dto> search(@SpringQueryMap Dto search, Pageable pageable);
+    Page<Dto> list(@SpringQueryMap Dto search, Pageable pageable);
 
     @PostMapping
     ResponseEntity<Dto> post(@RequestBody @Validated({Post.class}) Dto dto);
@@ -42,12 +42,12 @@ public interface MainController<Dto extends SmartDto> {
     ResponseEntity<Dto> put(@RequestBody @Validated({Put.class}) Dto dto);
 
     @DeleteMapping({"/{uuid}"})
-    ResponseEntity<Boolean> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,
+    ResponseEntity<Dto> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,
                                    @RequestParam(name = "delete")
                                    @NotNull(message = "{validation.description}") Delete delete);
 
     @PutMapping({"/{uuid}"})
-    ResponseEntity<Boolean> restore(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid);
+    ResponseEntity<Dto> restore(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid);
 
     Class<Dto> getType();
 

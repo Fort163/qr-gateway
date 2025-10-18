@@ -70,15 +70,15 @@ public abstract class CacheableMainServiceAbstract<Entity extends SmartEntity,
     }
 
     @Override
-    public Boolean delete(UUID uuid, Delete delete) {
-        Boolean result = super.delete(uuid, delete);
+    public Dto delete(UUID uuid, Delete delete) {
+        Dto result = super.delete(uuid, delete);
         convertAndSend(uuid, ChangeDataType.DELETE);
         return result;
     }
 
     @Override
-    public Boolean restore(UUID uuid) {
-        Boolean result = super.restore(uuid);
+    public Dto restore(UUID uuid) {
+        Dto result = super.restore(uuid);
         convertAndSend(uuid, ChangeDataType.UPDATE);
         return result;
     }
