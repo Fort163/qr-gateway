@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.ArrayUtils;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
+import com.quick.recording.gateway.dto.util.List;
 import com.quick.recording.gateway.dto.util.Patch;
 import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
@@ -78,8 +79,8 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @Override
     @GetMapping
     @PreAuthorize("hasAnyAuthority(#root.this.searchAuthority())")
-    public Page<Dto> search(@SpringQueryMap Dto search, Pageable pageable) {
-        return getService().search(search, pageable);
+    public Page<Dto> list(@SpringQueryMap @Validated({List.class})Dto search, Pageable pageable) {
+        return getService().list(search, pageable);
     }
 
     @Override
@@ -106,7 +107,7 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @Override
     @DeleteMapping({"/{uuid}"})
     @PreAuthorize("hasAnyAuthority(#root.this.deleteAuthority())")
-    public ResponseEntity<Boolean> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,
+    public ResponseEntity<Dto> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,
                                           @RequestParam(name = "delete")
                                           @NotNull(message = "{validation.description}") Delete delete) {
         return ResponseEntity.ok(getService().delete(uuid, delete));
@@ -115,7 +116,7 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @Override
     @PutMapping({"/{uuid}"})
     @PreAuthorize("hasAnyAuthority(#root.this.restoreAuthority())")
-    public ResponseEntity<Boolean> restore(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid) {
+    public ResponseEntity<Dto> restore(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid) {
         return ResponseEntity.ok(getService().restore(uuid));
     }
 
