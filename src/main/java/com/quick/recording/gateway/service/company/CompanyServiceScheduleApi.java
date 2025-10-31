@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @FeignClient(
-        name = "COMPANY-SERVICE",
+        name = "GATEWAY-SERVICE",
         contextId = "schedule",
         path = "/company/api/v1/schedule")
 public interface CompanyServiceScheduleApi extends MainRemoteService<ScheduleDto> {

@@ -5,7 +5,7 @@ import com.quick.recording.gateway.main.service.remote.MainRemoteService;
 import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
-        name = "COMPANY-SERVICE",
+        name = "GATEWAY-SERVICE",
         contextId = "service",
         path = "/company/api/v1/service")
 public interface CompanyServiceServiceApi extends MainRemoteService<ServiceDto> {
