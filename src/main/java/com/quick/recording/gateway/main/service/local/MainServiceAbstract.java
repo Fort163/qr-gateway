@@ -122,20 +122,21 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
     @Transactional
     public Dto delete(UUID uuid, Delete delete) {
         Assert.notNull(uuid, "Uuid cannot be null");
+        Entity entity = getRepository().findById(uuid).orElseThrow(
+                () -> new NotFoundException(getMessageUtil(), getEntityClass(), uuid)
+        );
+        this.beforeDelete(entity, delete);
         return switch (delete) {
             case HARD -> {
-                Entity entity = getRepository().findById(uuid).orElseThrow(
-                        () -> new NotFoundException(getMessageUtil(), getEntityClass(), uuid)
-                );
                 this.getRepository().delete(entity);
+                this.afterDelete(entity, delete);
                 yield this.getMapper().toDto(entity);
             }
             case SOFT -> {
-                Entity entity = getRepository().findById(uuid).orElseThrow(
-                        () -> new NotFoundException(getMessageUtil(), getEntityClass(), uuid)
-                );
                 entity.setIsActive(false);
-                yield this.getMapper().toDto(getRepository().save(entity));
+                entity = getRepository().save(entity);
+                this.afterDelete(entity, delete);
+                yield this.getMapper().toDto(entity);
             }
         };
     }
@@ -148,8 +149,11 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
         Entity entity = getRepository().findById(uuid).orElseThrow(
                 () -> new NotFoundException(getMessageUtil(), getEntityClass(), uuid)
         );
+        this.beforeRestore(entity);
         entity.setIsActive(true);
-        return this.getMapper().toDto(getRepository().save(entity));
+        entity = getRepository().save(entity);
+        this.afterRestore(entity);
+        return this.getMapper().toDto(entity);
     }
 
     @Override
@@ -162,6 +166,18 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
     @CircuitBreaker(name = "database")
     public List<Entity> saveAll(Collection<Entity> list) {
         return getRepository().saveAll(list);
+    }
+
+    @Override
+    @CircuitBreaker(name = "database")
+    public void deleteAll(Collection<UUID> ids) {
+        getRepository().deleteAllById(ids);
+    }
+
+    @Override
+    @CircuitBreaker(name = "database")
+    public void deleteAllBatch(Collection<UUID> ids) {
+        getRepository().deleteAllByIdInBatch(ids);
     }
 
     @Override
@@ -205,6 +221,26 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
 
     @Transactional(propagation = Propagation.MANDATORY)
     protected void afterPut(Entity entity, Dto dto) {
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    protected void beforeDelete(Entity entity, Delete delete) {
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    protected void afterDelete(Entity entity, Delete delete) {
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    protected void beforeRestore(Entity entity) {
+
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    protected void afterRestore(Entity entity) {
 
     }
 
@@ -307,27 +343,53 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
                 ReflectUtil.DataWorker dataWorkerDto = dataWorkerListDto.getDataWorker(field.getName());
                 if (Objects.nonNull(dataWorkerDto)) {
                     Object invokeList = dataWorkerDto.getGetter().invoke(dto);
+                    Object oldInvokeList = dataWorkerDto.getGetter().invoke(oldDto);
                     if (Objects.isNull(invokeList)) {
                         invokeList = new ArrayList<>();
                     }
+                    if (Objects.isNull(oldInvokeList)) {
+                        oldInvokeList = new ArrayList<>();
+                    }
                     if (Collection.class.isAssignableFrom(invokeList.getClass())) {
-                        try {
-                            Collection<? super BaseDto> oldCollection = (Collection<? super BaseDto>)
-                                    dataWorkerDto.getGetter().invoke(oldDto);
-                            if (Objects.isNull(oldCollection)) {
-                                oldCollection = new ArrayList<>();
+                        Collection<? extends Object> invokeListObject = (Collection<? extends Object>) invokeList;
+                        Collection<? super Object> oldInvokeListObject = (Collection<? super Object>) oldInvokeList;
+                        if(!invokeListObject.isEmpty() || !oldInvokeListObject.isEmpty()){
+                            Object nextObject;
+                            if(invokeListObject.iterator().hasNext()) {
+                                nextObject = invokeListObject.iterator().next();
                             }
-                            Set<UUID> uuidSet = oldCollection.stream().map(item -> ((BaseDto) item).getUuid())
-                                    .collect(Collectors.toSet());
-                            Collection<? extends BaseDto> newCollection = (Collection<? extends BaseDto>) invokeList;
-                            for (BaseDto next : newCollection) {
-                                if (!uuidSet.contains(next.getUuid())) {
-                                    oldCollection.add(next);
+                            else {
+                                nextObject = oldInvokeListObject.iterator().next();
+                            }
+                            if(BaseDto.class.isAssignableFrom(nextObject.getClass())){
+                                try {
+                                    Collection<? super BaseDto> oldCollection = (Collection<? super BaseDto>) oldInvokeListObject;
+                                    Collection<? extends BaseDto> newCollection = (Collection<? extends BaseDto>) invokeListObject;
+                                    Set<UUID> uuidSet = oldCollection.stream().map(item -> ((BaseDto) item).getUuid())
+                                            .collect(Collectors.toSet());
+                                    for (BaseDto next : newCollection) {
+                                        if (!uuidSet.contains(next.getUuid())) {
+                                            oldCollection.add(next);
+                                        }
+                                    }
+                                    dataWorkerDto.getSetter().invoke(dto, oldCollection);
+                                } catch (Exception ignored) {
                                 }
                             }
-                            dataWorkerDto.getSetter().invoke(dto, oldCollection);
-                        } catch (ClassCastException ignored) {
+                            else {
+                                try {
+                                    for (Object newObject : invokeListObject){
+                                        if(!oldInvokeListObject.contains(newObject)){
+                                            oldInvokeListObject.add(newObject);
+                                        }
+                                    }
+                                    dataWorkerDto.getSetter().invoke(dto, oldInvokeListObject);
+                                }
+                                catch (Exception ignored) {
+                                }
+                            }
                         }
+
                     }
                 }
             }
