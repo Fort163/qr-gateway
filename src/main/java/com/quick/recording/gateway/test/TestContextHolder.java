@@ -3,6 +3,7 @@ package com.quick.recording.gateway.test;
 import com.quick.recording.gateway.dto.BaseDto;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
+@Profile({"test"})
 public class TestContextHolder implements BeforeEachCallback {
 
     private final HashMap<String, LinkedList<? super BaseDto>> currentMap;
