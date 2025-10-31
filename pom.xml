@@ -23,6 +23,7 @@
 		<qr.resource.version>0.0.1-SNAPSHOT</qr.resource.version>
 		<spring.data.redis.version>3.4.4</spring.data.redis.version>
 		<jedis.version>5.2.0</jedis.version>
+		<suite.version>1.11.0-M1</suite.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -88,6 +89,16 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-stream-kafka</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite</artifactId>
+			<version>${suite.version}</version>
 		</dependency>
 
 	</dependencies>
