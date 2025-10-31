@@ -1,6 +1,7 @@
 package com.quick.recording.gateway.dto.schedule;
 
 import com.quick.recording.gateway.config.validation.base.ValidBaseDto;
+import com.quick.recording.gateway.config.validation.schedule.ValidSchedule;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.util.Patch;
@@ -17,6 +18,10 @@ import java.time.LocalTime;
 
 @Data
 @RedisHash("Schedule")
+@ValidSchedule(
+        message = "{validation.schedule.type}",
+        groups = {Post.class, Patch.class, Put.class}
+)
 public class ScheduleDto extends SmartDto {
 
     @NotNull(

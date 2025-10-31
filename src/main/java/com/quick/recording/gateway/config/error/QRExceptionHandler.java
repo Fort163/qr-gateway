@@ -58,9 +58,16 @@ public class QRExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
         List<String> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.add(messageUtil.create("error.validation.field", fieldName, errorMessage));
+            if(error instanceof FieldError) {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.add(messageUtil.create("error.validation.field", fieldName, errorMessage));
+            }
+            else {
+                String objectName = error.getObjectName();
+                String errorMessage = error.getDefaultMessage();
+                errors.add(messageUtil.create("error.validation.type", objectName, errorMessage));
+            }
         });
         String messageError = messageUtil.create("error.validation.class",
                 ex.getParameter().getExecutable().getDeclaringClass().getSimpleName(),
