@@ -1,8 +1,10 @@
 package com.quick.recording.gateway.dto.company;
 
 import com.quick.recording.gateway.config.validation.base.ValidBaseDto;
+import com.quick.recording.gateway.config.validation.remote.CheckRemote;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
+import com.quick.recording.gateway.dto.auth.AuthUserDto;
 import com.quick.recording.gateway.dto.util.Patch;
 import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
@@ -22,6 +24,11 @@ public class EmployeeDto extends SmartDto {
     @NotNull(
             message = "{validation.employee.auth.uuid}",
             groups = {Put.class, Post.class}
+    )
+    @CheckRemote(
+            message = "{validation.check.remote.uuid}",
+            typeDto = AuthUserDto.class,
+            groups = {Post.class, Patch.class, Put.class}
     )
     private UUID authId;
     @NotNull(
