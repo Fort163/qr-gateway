@@ -51,7 +51,7 @@ public abstract class MainTestController<Type extends BaseDto> {
     private int port;
 
     @Autowired
-    private TestContextHolder testContextHolder;
+    private TestContextHolder<Type> testContextHolder;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -97,7 +97,7 @@ public abstract class MainTestController<Type extends BaseDto> {
                 Object resultObject = convertResponse(response.getBody(), testCase.getResultClass());
 
                 if(Objects.nonNull(resultObject) && BaseDto.class.isAssignableFrom(resultObject.getClass())){
-                    testContextHolder.put(this.contextVariableName(), (BaseDto) resultObject);
+                    testContextHolder.setLastCreateObject((Type) resultObject);
                 }
                 testCase.setResult(new ResultRequest(resultObject, response.getStatusCode(), response));
                 testCase.check();
@@ -126,6 +126,7 @@ public abstract class MainTestController<Type extends BaseDto> {
 
     @Test
     @Order(25)
+    @SuppressWarnings("unchecked")
     public void testHardDelete() {
         List<TestCase<Type, ?>> testCases = deleteHardGetTestCases();
         if (Objects.nonNull(testCases)) {
@@ -138,7 +139,7 @@ public abstract class MainTestController<Type extends BaseDto> {
                 );
                 Object resultObject = convertResponse(response.getBody(), testCase.getResultClass());
                 if(Objects.nonNull(resultObject) && BaseDto.class.isAssignableFrom(resultObject.getClass())){
-                    testContextHolder.remove(this.contextVariableName(), (BaseDto) resultObject);
+                    testContextHolder.setLastDeletedObject((Type) resultObject);
                 }
                 testCase.setResult(new ResultRequest(resultObject, response.getStatusCode(), response));
                 testCase.check();
@@ -167,6 +168,7 @@ public abstract class MainTestController<Type extends BaseDto> {
 
     @Test
     @Order(35)
+    @SuppressWarnings("unchecked")
     public void testNewPost() {
         List<TestCase<Type, ?>> testCases = postGetTestCases();
         if (Objects.nonNull(testCases)) {
@@ -181,7 +183,7 @@ public abstract class MainTestController<Type extends BaseDto> {
 
                 if(Objects.nonNull(resultObject) &&
                         BaseDto.class.isAssignableFrom(resultObject.getClass())){
-                    testContextHolder.put(this.contextVariableName(), (BaseDto) resultObject);
+                    testContextHolder.setLastCreateObject((Type) resultObject);
                 }
                 testCase.setResult(new ResultRequest(resultObject, response.getStatusCode(), response));
                 testCase.check();
@@ -229,6 +231,7 @@ public abstract class MainTestController<Type extends BaseDto> {
 
     @Test
     @Order(50)
+    @SuppressWarnings("unchecked")
     public void testPut() {
         List<TestCase<Type, ?>> testCases = putGetTestCases();
         if (Objects.nonNull(testCases)) {
@@ -242,7 +245,7 @@ public abstract class MainTestController<Type extends BaseDto> {
                 Object resultObject = convertResponse(response.getBody(), testCase.getResultClass());
                 if(Objects.nonNull(resultObject) &&
                         BaseDto.class.isAssignableFrom(resultObject.getClass())){
-                    testContextHolder.put(this.contextVariableName(), (BaseDto) resultObject);
+                    testContextHolder.setLastCreateObject((Type) resultObject);
                 }
                 testCase.setResult(new ResultRequest(resultObject, response.getStatusCode(), response));
                 testCase.check();
@@ -252,6 +255,7 @@ public abstract class MainTestController<Type extends BaseDto> {
 
     @Test
     @Order(55)
+    @SuppressWarnings("unchecked")
     public void testPatch() {
         List<TestCase<Type, ?>> testCases = patchGetTestCases();
         if (Objects.nonNull(testCases)) {
@@ -265,7 +269,7 @@ public abstract class MainTestController<Type extends BaseDto> {
                 Object resultObject = convertResponse(response.getBody(), testCase.getResultClass());
                 if(Objects.nonNull(resultObject) &&
                         BaseDto.class.isAssignableFrom(resultObject.getClass())){
-                    testContextHolder.put(this.contextVariableName(), (BaseDto) resultObject);
+                    testContextHolder.setLastCreateObject((Type) resultObject);
                 }
                 testCase.setResult(new ResultRequest(resultObject, response.getStatusCode(), response));
                 testCase.check();
@@ -314,6 +318,8 @@ public abstract class MainTestController<Type extends BaseDto> {
     @Test
     @Order(Integer.MAX_VALUE)
     public void clear(){
+        getTestContextHolder().setLastCreateObject(null);
+        getTestContextHolder().setLastDeletedObject(null);
         if(!getTestContextHolder().isSuite()) {
             for (MainService<? extends SmartEntity, ? extends SmartDto> service : getServicesForClear()){
                 clearService(service);
@@ -326,9 +332,6 @@ public abstract class MainTestController<Type extends BaseDto> {
 
     @NonNull
     public abstract String uri();
-
-    @NonNull
-    public abstract String contextVariableName();
 
     @NonNull
     public abstract List<TestCase<Type, ?>> postGetTestCases();
@@ -420,31 +423,12 @@ public abstract class MainTestController<Type extends BaseDto> {
     @SuppressWarnings("unchecked")
     @Nullable
     public Type getLastDeletedObjectClone(){
-        return createClone((Type) this.getTestContextHolder().getLastDeleted(this.contextVariableName()));
+        return createClone(this.getTestContextHolder().getLastDeletedObject());
     }
 
     @Nullable
     public Type getLastCreateObjectClone(){
-        return createClone(this.getTestContextHolder().getLast(this.contextVariableName()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public List<Type> getAllCreateObjectClone(){
-        return createCloneList(this.getTestContextHolder().getList(this.contextVariableName()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    private List<Type> createCloneList(List<? super BaseDto> types) {
-        if(Objects.isNull(types)){
-            return null;
-        }
-        List<Type> result = new ArrayList<>();
-        types.forEach(item -> {
-            result.add(createClone((Type) item));
-        });
-        return result;
+        return createClone(this.getTestContextHolder().getLastCreateObject());
     }
 
     @SuppressWarnings("unchecked")
@@ -463,7 +447,7 @@ public abstract class MainTestController<Type extends BaseDto> {
         }
     }
 
-    public TestContextHolder getTestContextHolder() {
+    public TestContextHolder<Type> getTestContextHolder() {
         return testContextHolder;
     }
 
