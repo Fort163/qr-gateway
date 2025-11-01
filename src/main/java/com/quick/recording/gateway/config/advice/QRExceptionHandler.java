@@ -1,8 +1,9 @@
-package com.quick.recording.gateway.config.error;
+package com.quick.recording.gateway.config.advice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quick.recording.gateway.config.MessageUtil;
+import com.quick.recording.gateway.config.error.ApiError;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
