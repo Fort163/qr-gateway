@@ -3,6 +3,7 @@ package com.quick.recording.gateway.util;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.lang.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -21,6 +22,12 @@ public class ReflectUtil {
     public static List<Field> classTypeFieldFromClass(Class<?> aClass, Class<?> type){
         return Arrays.stream(aClass.getDeclaredFields())
                 .filter(field -> type.isAssignableFrom(field.getType()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Field> annotatedFieldFromClass(Class<?> aClass, Class<? extends Annotation> type){
+        return Arrays.stream(aClass.getDeclaredFields())
+                .filter(field -> Objects.nonNull(field.getAnnotation(type)))
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +78,7 @@ public class ReflectUtil {
         return String.format(TEMPLATE_SETTER, WordUtils.capitalize(field.getName()));
     }
 
-    public static class DataWorkerList{
+    public static class DataWorkerList implements Iterable<DataWorker> {
 
         private Map<String, DataWorker> map = new HashMap<>();
 
@@ -81,6 +88,11 @@ public class ReflectUtil {
 
         public DataWorker getDataWorker(String fieldName){
             return map.get(fieldName);
+        }
+
+        @Override
+        public Iterator<DataWorker> iterator() {
+            return map.values().iterator();
         }
 
     }
