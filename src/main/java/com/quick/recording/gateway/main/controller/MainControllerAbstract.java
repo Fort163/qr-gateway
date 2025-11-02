@@ -32,21 +32,25 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     private final String PERMISSION_TEMPLATE = "%s_%s";
     private final String PERMISSION_POSTFIX_READ = "READ";
     private final String PERMISSION_POSTFIX_CREATE = "CREATE";
-    private final String PERMISSION_POSTFIX_EDIT = "EDIT";
+    private final String PERMISSION_POSTFIX_PUT = "PUT";
+    private final String PERMISSION_POSTFIX_PATCH = "PATCH";
     private final String PERMISSION_POSTFIX_DELETE = "DELETE";
     private final String PERMISSION_POSTFIX_ALL = "ALL";
     protected final String PERMISSION_ALL_READ = "ALL_READ";
     protected final String PERMISSION_ALL_CREATE = "ALL_CREATE";
-    protected final String PERMISSION_ALL_EDIT = "ALL_EDIT";
+    protected final String PERMISSION_ALL_PUT = "ALL_PUT";
+    protected final String PERMISSION_ALL_PATCH = "ALL_PATCH";
     protected final String PERMISSION_ALL_DELETE = "ALL_DELETE";
     protected final String permissionRead;
     protected final String permissionCreate;
-    protected final String permissionEdit;
+    protected final String permissionPut;
+    protected final String permissionPatch;
     protected final String permissionDelete;
     protected final String permissionAll;
     protected final String[] permissionReadDefaultArray;
     protected final String[] permissionCreateDefaultArray;
-    protected final String[] permissionEditDefaultArray;
+    protected final String[] permissionPutDefaultArray;
+    protected final String[] permissionPatchDefaultArray;
     protected final String[] permissionDeleteDefaultArray;
     protected final String roleName;
     protected final Service service;
@@ -60,12 +64,14 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
         this.roleName = getRoleName();
         this.permissionRead = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_READ);
         this.permissionCreate = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_CREATE);
-        this.permissionEdit = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_EDIT);
+        this.permissionPut = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_PUT);
+        this.permissionPatch = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_PATCH);
         this.permissionDelete = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_DELETE);
         this.permissionAll = String.format(PERMISSION_TEMPLATE, roleName, PERMISSION_POSTFIX_ALL);
         this.permissionReadDefaultArray = new String[]{permissionRead, PERMISSION_ALL_READ, permissionAll};
         this.permissionCreateDefaultArray = new String[]{permissionCreate, PERMISSION_ALL_CREATE, permissionAll};
-        this.permissionEditDefaultArray = new String[]{permissionEdit, PERMISSION_ALL_EDIT, permissionAll};
+        this.permissionPutDefaultArray = new String[]{permissionPut, PERMISSION_ALL_PUT, permissionAll};
+        this.permissionPatchDefaultArray = new String[]{permissionPatch, PERMISSION_ALL_PATCH, permissionAll};
         this.permissionDeleteDefaultArray = new String[]{permissionDelete, PERMISSION_ALL_DELETE, permissionAll};
     }
 
@@ -138,15 +144,15 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     }
 
     public final String[] patchAuthority() {
-        return arrayConcat(getPermissionEditDefaultArray(), additionalPatchAuthority());
+        return arrayConcat(getPermissionPatchDefaultArray(), additionalPatchAuthority());
     }
 
     public final String[] putAuthority() {
-        return arrayConcat(getPermissionEditDefaultArray(), additionalPutAuthority());
+        return arrayConcat(getPermissionPutDefaultArray(), additionalPutAuthority());
     }
 
     public final String[] deleteAuthority() {
-        return arrayConcat(getPermissionEditDefaultArray(), additionalDeleteAuthority());
+        return arrayConcat(getPermissionDeleteDefaultArray(), additionalDeleteAuthority());
     }
 
     public final String[] restoreAuthority() {
@@ -193,9 +199,11 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
         return permissionCreate;
     }
 
-    public String getPermissionEdit() {
-        return permissionEdit;
+    public String getPermissionPut() {
+        return permissionPut;
     }
+
+    public String getPermissionPatch() {return permissionPatch;}
 
     public String getPermissionDelete() {
         return permissionDelete;
@@ -213,8 +221,12 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
         return permissionCreateDefaultArray;
     }
 
-    public String[] getPermissionEditDefaultArray() {
-        return permissionEditDefaultArray;
+    public String[] getPermissionPutDefaultArray() {
+        return permissionPutDefaultArray;
+    }
+
+    public String[] getPermissionPatchDefaultArray() {
+        return permissionPatchDefaultArray;
     }
 
     public String[] getPermissionDeleteDefaultArray() {
