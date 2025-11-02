@@ -71,7 +71,8 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
         this.permissionReadDefaultArray = new String[]{permissionRead, PERMISSION_ALL_READ, permissionAll};
         this.permissionCreateDefaultArray = new String[]{permissionCreate, PERMISSION_ALL_CREATE, permissionAll};
         this.permissionPutDefaultArray = new String[]{permissionPut, PERMISSION_ALL_PUT, permissionAll};
-        this.permissionPatchDefaultArray = new String[]{permissionPatch, PERMISSION_ALL_PATCH, permissionAll};
+        this.permissionPatchDefaultArray = new String[]{permissionPatch, permissionPut, PERMISSION_ALL_PUT,
+                PERMISSION_ALL_PATCH, permissionAll};
         this.permissionDeleteDefaultArray = new String[]{permissionDelete, PERMISSION_ALL_DELETE, permissionAll};
     }
 
@@ -85,7 +86,7 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @Override
     @GetMapping
     @PreAuthorize("hasAnyAuthority(#root.this.searchAuthority())")
-    public Page<Dto> list(@SpringQueryMap @Validated({List.class})Dto search, Pageable pageable) {
+    public Page<Dto> list(@SpringQueryMap @Validated({List.class}) Dto search, Pageable pageable) {
         return getService().list(search, pageable);
     }
 
@@ -114,8 +115,8 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @DeleteMapping({"/{uuid}"})
     @PreAuthorize("hasAnyAuthority(#root.this.deleteAuthority())")
     public ResponseEntity<Dto> delete(@PathVariable @NotNull(message = "{validation.uuid}") UUID uuid,
-                                          @RequestParam(name = "delete")
-                                          @NotNull(message = "{validation.description}") Delete delete) {
+                                      @RequestParam(name = "delete")
+                                      @NotNull(message = "{validation.description}") Delete delete) {
         return ResponseEntity.ok(getService().delete(uuid, delete));
     }
 
@@ -203,7 +204,9 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
         return permissionPut;
     }
 
-    public String getPermissionPatch() {return permissionPatch;}
+    public String getPermissionPatch() {
+        return permissionPatch;
+    }
 
     public String getPermissionDelete() {
         return permissionDelete;
