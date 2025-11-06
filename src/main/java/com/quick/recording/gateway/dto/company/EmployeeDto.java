@@ -54,10 +54,6 @@ public class EmployeeDto extends SmartDto {
             groups = {Put.class, Post.class}
     )
     private List<CompanyHierarchyEnum> permissions;
-    @NotEmpty(
-            message = "{validation.employee.services.not.empty}",
-            groups = {Put.class, Post.class}
-    )
     @ValidBaseDto(
             message = "{validation.list.base.dto.default}",
             groups = {Post.class, Put.class, Patch.class}
