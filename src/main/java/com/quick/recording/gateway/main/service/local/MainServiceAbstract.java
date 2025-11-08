@@ -90,13 +90,15 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
         Entity entity = getRepository().findById(dto.getUuid()).orElseThrow(
                 () -> new NotFoundException(getMessageUtil(), getEntityClass(), dto.getUuid())
         );
-        this.beforePatch(entity, dto);
+        Dto oldDto = getMapper().toDto(entity);
+        this.beforePatch(entity, oldDto, dto);
         this.setNoEditableField(dto, entity);
         this.setPatchField(dto, entity);
         entity = getMapper().toEntityWithoutNull(dto, entity);
-        entity = getRepository().saveAndFlush(entity);
-        this.afterPatch(entity, dto);
-        return getMapper().toDto(entity);
+        entity = getRepository().save(entity);
+        Dto result = getMapper().toDto(entity);
+        this.afterPatch(oldDto, result);
+        return result;
     }
 
 
@@ -108,12 +110,14 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
         Entity entity = getRepository().findById(dto.getUuid()).orElseThrow(
                 () -> new NotFoundException(getMessageUtil(), getEntityClass(), dto.getUuid())
         );
-        this.beforePut(entity, dto);
+        Dto oldDto = getMapper().toDto(entity);
+        this.beforePut(entity, oldDto, dto);
         this.setNoEditableField(dto, entity);
         entity = getMapper().toEntity(dto, entity);
-        entity = getRepository().saveAndFlush(entity);
-        this.afterPut(entity, dto);
-        return getMapper().toDto(entity);
+        entity = getRepository().save(entity);
+        Dto result = getMapper().toDto(entity);
+        this.afterPut(oldDto, result);
+        return result;
     }
 
 
@@ -205,22 +209,22 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    protected void beforePatch(Entity entity, Dto dto) {
+    protected void beforePatch(Entity entity, Dto oldDto, Dto dto) {
 
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    protected void afterPatch(Entity entity, Dto dto) {
+    protected void afterPatch(Dto oldDto, Dto newDto) {
 
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    protected void beforePut(Entity entity, Dto dto) {
+    protected void beforePut(Entity entity, Dto oldDto, Dto dto) {
 
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    protected void afterPut(Entity entity, Dto dto) {
+    protected void afterPut(Dto oldDto, Dto newDto) {
 
     }
 
