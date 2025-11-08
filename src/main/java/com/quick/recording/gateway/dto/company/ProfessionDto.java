@@ -36,10 +36,6 @@ public class ProfessionDto extends SmartDto {
             groups = {Post.class, Put.class, Patch.class}
     )
     private BaseDto company;
-    @NotEmpty(
-            message = "{validation.employee.services.not.empty}",
-            groups = {Put.class, Post.class}
-    )
     @ValidBaseDto(
             message = "{validation.list.base.dto.default}",
             groups = {Post.class, Put.class, Patch.class}
