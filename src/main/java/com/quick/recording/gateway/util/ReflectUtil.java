@@ -15,8 +15,12 @@ public class ReflectUtil {
     private static final String TEMPLATE_SETTER = "set%s";
 
     public static List<Field> fieldFromClass(Class<?> aClass){
-        return Arrays.stream(aClass.getDeclaredFields())
-                .collect(Collectors.toList());
+        List<Field> result = Arrays.stream(aClass.getDeclaredFields()).collect(Collectors.toList());
+        Class<?> superclass = aClass.getSuperclass();
+        if(Objects.nonNull(superclass)){
+            result.addAll(fieldFromClass(superclass));
+        }
+        return result;
     }
 
     public static List<Field> classTypeFieldFromClass(Class<?> aClass, Class<?> type){
@@ -35,6 +39,10 @@ public class ReflectUtil {
         return Arrays.stream(aClass.getDeclaredFields())
                         .filter(field -> Collection.class.isAssignableFrom(field.getType()))
                         .collect(Collectors.toList());
+    }
+
+    public static DataWorkerList getDataWorker(Class<?> aClass){
+        return getDataWorker(fieldFromClass(aClass), aClass);
     }
 
     public static DataWorkerList getDataWorker(List<Field> fields, Class<?> aClass){
