@@ -19,6 +19,8 @@ public interface MainService<Entity extends SmartEntity, Dto extends SmartDto> {
 
     Page<Dto> list(Dto dto, Pageable pageable);
 
+    Collection<Dto> search(Dto dto);
+
     Dto post(Dto dto);
 
     Dto patch(Dto dto);

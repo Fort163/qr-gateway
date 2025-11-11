@@ -5,6 +5,7 @@ import com.quick.recording.gateway.dto.SmartDto;
 import com.quick.recording.gateway.dto.util.Patch;
 import com.quick.recording.gateway.dto.util.Post;
 import com.quick.recording.gateway.dto.util.Put;
+import com.quick.recording.gateway.dto.util.Search;
 import com.quick.recording.gateway.enumerated.Delete;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -31,6 +32,9 @@ public interface MainController<Dto extends SmartDto> {
 
     @GetMapping
     Page<Dto> list(@SpringQueryMap Dto search, Pageable pageable);
+
+    @PostMapping("/search")
+    ResponseEntity<Collection<Dto>> search(@RequestBody @Validated({Search.class}) Dto dto);
 
     @PostMapping
     ResponseEntity<Dto> post(@RequestBody @Validated({Post.class}) Dto dto);

@@ -5,10 +5,7 @@ import com.nimbusds.jose.util.ArrayUtils;
 import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
-import com.quick.recording.gateway.dto.util.List;
-import com.quick.recording.gateway.dto.util.Patch;
-import com.quick.recording.gateway.dto.util.Post;
-import com.quick.recording.gateway.dto.util.Put;
+import com.quick.recording.gateway.dto.util.*;
 import com.quick.recording.gateway.entity.SmartEntity;
 import com.quick.recording.gateway.enumerated.Delete;
 import com.quick.recording.gateway.main.service.local.MainService;
@@ -21,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -88,6 +86,13 @@ public abstract class MainControllerAbstract<Dto extends SmartDto, Entity extend
     @PreAuthorize("hasAnyAuthority(#root.this.searchAuthority())")
     public Page<Dto> list(@SpringQueryMap @Validated({List.class}) Dto search, Pageable pageable) {
         return getService().list(search, pageable);
+    }
+
+    @Override
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority(#root.this.searchAuthority())")
+    public ResponseEntity<Collection<Dto>> search(@RequestBody @Validated({Search.class}) Dto dto) {
+        return ResponseEntity.ok(getService().search(dto));
     }
 
     @Override

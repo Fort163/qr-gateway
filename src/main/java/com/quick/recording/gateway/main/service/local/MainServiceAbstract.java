@@ -5,17 +5,24 @@ import com.quick.recording.gateway.config.error.exeption.BuildClassException;
 import com.quick.recording.gateway.config.error.exeption.NotFoundException;
 import com.quick.recording.gateway.dto.BaseDto;
 import com.quick.recording.gateway.dto.SmartDto;
+import com.quick.recording.gateway.entity.BaseEntity;
 import com.quick.recording.gateway.entity.SmartEntity;
 import com.quick.recording.gateway.enumerated.Delete;
 import com.quick.recording.gateway.mapper.MainMapper;
 import com.quick.recording.gateway.util.ReflectUtil;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -37,6 +44,9 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
     protected final Mapper mapper;
     protected final MessageUtil messageUtil;
     protected final Class<Entity> entityClass;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public MainServiceAbstract() {
         throw new BuildClassException("Call empty constructor in class MainServiceAbstract");
@@ -68,6 +78,20 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
         Entity entity = getMapper().toEntity(dto);
         Page<Dto> page = getRepository().findAll(createSearch(entity), pageable).map(getMapper()::toDto);
         return page;
+    }
+
+    @Override
+    @CircuitBreaker(name = "database")
+    public Collection<Dto> search(Dto dto) {
+        Entity filter = getMapper().toEntity(dto);
+        TypedQuery<Entity> query = hqlQuery(filter);
+        if(Objects.nonNull(query)){
+            return getMapper().toDtoList(query.getResultList());
+        }
+        else {
+            query = criteriaQuery(filter);
+        }
+        return getMapper().toDtoList(query.getResultList());
     }
 
     @Override
@@ -198,6 +222,30 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
         return repository.findAll();
     }
 
+    /*
+        Переопределить если необходимо выполнения метода search только по этому hql запросу
+     */
+    protected TypedQuery<Entity> hqlQuery(Entity filter){
+        return null;
+    }
+
+    /*
+        Нельзя возвращать null
+        Переопределить если необходимо изменить стандартный поиск по полю
+        Key - название поля
+        Value - Лист предикатов
+     */
+    @NonNull
+    protected Map<String, List<Predicate>> customPredicate(CriteriaBuilder criteriaBuilder, Root<Entity> root,
+                                                           Entity filter){
+        return Map.of();
+    }
+
+    /*
+        Переопределить эти методы
+        чтобы изменить поведение до и после выполнения методов
+        post, put, patch, delete, restore
+     */
     @Transactional(propagation = Propagation.MANDATORY)
     protected void beforePost(Entity entity, Dto dto) {
 
@@ -274,6 +322,10 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
 
     public Class<Entity> getEntityClass() {
         return entityClass;
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 
     private BaseDto clearValueDto(Object valueDto) throws NoSuchMethodException,
@@ -401,6 +453,123 @@ public abstract class MainServiceAbstract<Entity extends SmartEntity,
             log.error(
                     String.format("Error in setPatchField for class : %s \nerror: %s", dtoClass.getName(),
                             exception.getMessage()));
+        }
+    }
+
+    private TypedQuery<Entity> criteriaQuery(Entity filter) {
+        CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Entity> query = criteriaBuilder.createQuery(getEntityClass());
+        Root<Entity> root = query.from(getEntityClass());
+        ReflectUtil.DataWorkerList dataWorker = ReflectUtil.getDataWorker(getEntityClass());
+        List<Predicate> predicates = new ArrayList<>();
+        Map<String, List<Predicate>> predicateMap = customPredicate(criteriaBuilder, root, filter);
+        // Получаем список переопределенных полей
+        Set<String> listNamePredicate = predicateMap.keySet();
+        // Собираем список предикатов
+        for(ReflectUtil.DataWorker worker : dataWorker){
+            // Если поле переопределено используем только переопределенные предикаты по этому полю
+            if(listNamePredicate.contains(worker.getField().getName())){
+                predicates.addAll(predicateMap.get(worker.getField().getName()));
+            }
+            else {
+                // Добавляем предикаты по умолчанию
+                predicates.addAll(getDefaultPredicate(criteriaBuilder, root, filter, worker));
+            }
+        }
+        if(!predicates.isEmpty()){
+            query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        }
+        return getEntityManager().createQuery(query);
+    }
+
+    /*
+        В случае ошибки возвращает пустой список
+        Стандартные предикаты зависят от типа поля.
+        Значение поля - value
+        Поле в entity - field
+        1. Строка : Поиск по вхождению в строку SQL пример -WHERE field LIKE '%'+value+'%'
+        2. Не коллекция, не BaseEntity, не сторка : Сравнение через equals SQL пример -WHERE field = value
+        Все сущности присоединяются по INNER JOIN
+        3. Коллекция : Определяется содержимое коллекции если элементы наследники BaseEntity
+          в результат поиска попадут элементы находящиеся в списке SQL пример -WHERE field in (value as array)
+        4. BaseEntity : Сравнение простых полей не наследников BaseEntity и коллекции будут сравниваться по = ,
+          строки будут работать так же как в основной entity
+     */
+    @NonNull
+    private List<Predicate> getDefaultPredicate(CriteriaBuilder criteriaBuilder, Root<Entity> root,
+                                                Entity filter, ReflectUtil.DataWorker worker){
+        try {
+            Object value = worker.getGetter().invoke(filter);
+            if(Objects.isNull(value)){
+                return Collections.emptyList();
+            }
+            List<Predicate> result = new ArrayList<>();
+            Field field = worker.getField();
+            Class<?> type = value.getClass();
+            if(BaseEntity.class.isAssignableFrom(type) ||
+                    Collection.class.isAssignableFrom(type)){
+                if(BaseEntity.class.isAssignableFrom(type)){
+                    Class<?> baseClass = value.getClass();
+                    ReflectUtil.DataWorkerList baseDataWorker =
+                            ReflectUtil.getDataWorker(baseClass);
+                    Join<Entity, Object> join = root.join(worker.getField().getName(), JoinType.INNER);
+                    for(ReflectUtil.DataWorker baseWorker: baseDataWorker){
+                        Object baseValue = baseWorker.getGetter().invoke(value);
+                        if(Objects.nonNull(baseValue)) {
+                            Field baseField = baseWorker.getField();
+                            Class<?> baseType = baseField.getType();
+                            if (Collection.class.isAssignableFrom(baseType)) {
+                                result.add(criteriaBuilder.in(join.get(baseField.getName())).value(baseValue));
+                                continue;
+                            }
+                            if(String.class.isAssignableFrom(baseType)){
+                                result.add(criteriaBuilder.like(
+                                        criteriaBuilder.lower(join.get(baseField.getName())),
+                                        "%" + ((String)baseValue).trim().toLowerCase() + "%"
+                                ));
+                                continue;
+                            }
+                            result.add(criteriaBuilder.equal(join.get(baseField.getName()), baseValue));
+                        }
+                    }
+                }
+                else {
+                    Collection collection = (Collection) value;
+                    Optional first = collection.stream().findFirst();
+                    if(first.isEmpty()){
+                        return Collections.emptyList();
+                    }
+                    else {
+                        Class<?> aClass = first.get().getClass();
+                        if(BaseEntity.class.isAssignableFrom(aClass)){
+                            Collection<? extends BaseEntity> collectionBase = (Collection<? extends BaseEntity>) collection;
+                            List<UUID> uuids = collectionBase.stream().map(BaseEntity::getUuid).toList();
+                            Join<Entity, ? extends BaseEntity> join = root.join(worker.getField().getName(), JoinType.INNER);
+                            result.add(criteriaBuilder.in(join.get("uuid")).value(uuids));
+                        }
+                        else {
+                            result.add(criteriaBuilder.in(root.get(field.getName())).value(collection));
+                        }
+                    }
+                }
+            }
+            else {
+                if(String.class.isAssignableFrom(type)){
+                    result.add(criteriaBuilder.like(
+                            criteriaBuilder.lower(root.get(field.getName())),
+                            "%" + ((String)value).trim().toLowerCase() + "%"
+                    ));
+                }
+                else {
+                    result.add(
+                            criteriaBuilder.equal(root.get(field.getName()), value)
+                    );
+                }
+            }
+            return result;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error(e.getMessage());
+            return Collections.emptyList();
         }
     }
 

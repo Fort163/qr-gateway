@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public abstract class MainRemoteServiceAbstract<Dto extends SmartDto, Service extends MainRemoteService<Dto>>
@@ -31,6 +32,9 @@ public abstract class MainRemoteServiceAbstract<Dto extends SmartDto, Service ex
     public Page<Dto> list(Dto dto, Pageable pageable) {
         return getService().list(dto, pageable);
     }
+
+    @Override
+    public ResponseEntity<Collection<Dto>> search(Dto dto) {return getService().search(dto);}
 
     @Override
     public ResponseEntity<Dto> post(Dto dto) {
