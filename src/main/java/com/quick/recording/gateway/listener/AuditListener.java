@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Component
@@ -24,8 +25,8 @@ public class AuditListener {
         if (Objects.nonNull(authentication)) {
             userName = authentication.getName();
         }
-        entity.setCreatedWhen(LocalDateTime.now());
-        entity.setUpdatedWhen(LocalDateTime.now());
+        entity.setCreatedWhen(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        entity.setUpdatedWhen(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         entity.setCreatedBy(userName);
         entity.setUpdatedBy(userName);
     }
@@ -37,7 +38,7 @@ public class AuditListener {
         if (Objects.nonNull(authentication)) {
             userName = authentication.getName();
         }
-        entity.setUpdatedWhen(LocalDateTime.now());
+        entity.setUpdatedWhen(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         entity.setUpdatedBy(userName);
     }
 
